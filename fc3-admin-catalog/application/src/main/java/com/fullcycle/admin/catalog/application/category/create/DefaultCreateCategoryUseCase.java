@@ -3,7 +3,7 @@ package com.fullcycle.admin.catalog.application.category.create;
 import com.fullcycle.admin.catalog.domain.category.Category;
 import com.fullcycle.admin.catalog.domain.category.CategoryGateway;
 import com.fullcycle.admin.catalog.domain.validation.handler.Notification;
-import com.fullcycle.admin.catalog.domain.validation.handler.ThrowsValidationHandler;
+import io.vavr.control.Either;
 
 import java.util.Objects;
 
@@ -19,7 +19,7 @@ public class DefaultCreateCategoryUseCase extends CreateCategoryUseCase {
     }
 
     @Override
-    public CreateCategoryOutput execute(CreateCategoryCommand aCommand) {
+    public Either<Notification, CreateCategoryOutput> execute(CreateCategoryCommand aCommand) {
         final var aName = aCommand.name();
         final var aDescription = aCommand.description();
         final var isActive = aCommand.isActive();
