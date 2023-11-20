@@ -49,7 +49,7 @@ public class UpdateCategoryUseCaseTest {
 
         final var aCommand = UpdateCategoryCommand.with(expectedId.getValue(), expectedName, expectedDescription, expectedIsActive);
 
-        when(categoryGateway.findById(eq(expectedId))).thenReturn(Optional.of(aCategory.clone(aCategory)));
+        when(categoryGateway.findById(eq(expectedId))).thenReturn(Optional.of(aCategory.clone()));
 
         when(categoryGateway.update(any())).thenAnswer(returnsFirstArg());
 
@@ -85,7 +85,7 @@ public class UpdateCategoryUseCaseTest {
         final var aCommand = UpdateCategoryCommand.with(expectedId.getValue(), expectedName, expectedDescription, expectedIsActive);
 
         when(categoryGateway.findById(eq(expectedId)))
-                .thenReturn(Optional.of(aCategory.clone(aCategory)));
+                .thenReturn(Optional.of(aCategory.clone()));
 
         final var notification = useCase.execute(aCommand).getLeft();
 
@@ -107,7 +107,7 @@ public class UpdateCategoryUseCaseTest {
         final var aCommand = UpdateCategoryCommand.with(expectedId.getValue(), expectedName, expectedDescription, expectedIsActive);
 
         when(categoryGateway.findById(eq(expectedId)))
-                .thenReturn(Optional.of(aCategory.clone(aCategory)));
+                .thenReturn(Optional.of(aCategory.clone()));
 
         when(categoryGateway.update(any())).thenAnswer(returnsFirstArg());
 
@@ -146,7 +146,7 @@ public class UpdateCategoryUseCaseTest {
         final var aCommand = UpdateCategoryCommand.with(expectedId.getValue(), expectedName, expectedDescription, expectedIsActive);
 
         when(categoryGateway.findById(eq(expectedId)))
-                .thenReturn(Optional.of(aCategory.clone(aCategory)));
+                .thenReturn(Optional.of(aCategory.clone()));
 
         when(categoryGateway.update(Mockito.any()))
                 .thenThrow(new IllegalStateException(expectedErrorMessage));
