@@ -3,3 +3,9 @@ mysql:
   password: ${DATABASE_MYSQL_PASSWORD:Salmos89!}
   schema: adm_videos
   url: ${DATABASE_MYSQL_URL:localhost:33006}
+
+spring:
+  jpa:
+    show-sql: false
+    hibernate:
+      ddl-auto: none
