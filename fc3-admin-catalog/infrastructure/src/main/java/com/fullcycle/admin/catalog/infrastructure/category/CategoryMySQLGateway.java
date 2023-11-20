@@ -7,9 +7,17 @@ import com.fullcycle.admin.catalog.domain.category.CategorySearchQuery;
 import com.fullcycle.admin.catalog.domain.pagination.Pagination;
 import com.fullcycle.admin.catalog.infrastructure.category.persistence.CategoryJpaEntity;
 import com.fullcycle.admin.catalog.infrastructure.category.persistence.CategoryRepository;
+import com.fullcycle.admin.catalog.infrastructure.utils.SpecificationUtils;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+
+import static com.fullcycle.admin.catalog.infrastructure.utils.SpecificationUtils.like;
+import static org.springframework.data.domain.Sort.Direction.fromString;
 
 /**
  * @author aaristides
@@ -49,10 +57,37 @@ public class CategoryMySQLGateway implements CategoryGateway {
 
     @Override
     public Pagination<Category> findAll(final CategorySearchQuery aQuery) {
-        return null;
+        //Paginação
+        final var page = PageRequest.of(
+                aQuery.page(),
+                aQuery.perPage(),
+                Sort.by(fromString(aQuery.direction()), aQuery.sort())
+        );
+
+        //Busca dinâmica pelo critério terms (name ou description)
+        final var specifications = Optional.ofNullable(aQuery.terms())
+                .filter(str -> !str.isBlank())
+                .map(this::assembleSpecification)
+                .orElse(null);
+
+        final var pageResult =
+                this.repository.findAll(Specification.where(specifications), page);
+
+        return new Pagination<>(
+                pageResult.getNumber(),
+                pageResult.getSize(),
+                pageResult.getTotalElements(),
+                pageResult.map(CategoryJpaEntity::toAggregate).toList()
+        );
     }
 
     private Category save(final Category aCategory) {
         return this.repository.save(CategoryJpaEntity.from(aCategory)).toAggregate();
+    }
+
+    private Specification<CategoryJpaEntity> assembleSpecification(final String str) {
+        final Specification<CategoryJpaEntity> nameLike = like("name", str);
+        final Specification<CategoryJpaEntity> descriptionLike = like("description", str);
+        return nameLike.or(descriptionLike);
     }
 }
