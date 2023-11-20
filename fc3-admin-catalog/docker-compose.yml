@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  mysql:
+    container_name: adm_videos_mysql
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=Salmos89!
+      - MYSQL_DATABASE=adm_videos
+    security_opt:
+      - seccomp:unconfined
+    ports:
+      - "33006:3306"
+    networks:
+      - adm_videos_network
+
+networks:
+  adm_videos_network:
