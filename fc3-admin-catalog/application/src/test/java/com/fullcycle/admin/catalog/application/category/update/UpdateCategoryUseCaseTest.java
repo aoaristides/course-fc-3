@@ -1,6 +1,5 @@
 package com.fullcycle.admin.catalog.application.category.update;
 
-import com.fullcycle.admin.catalog.application.category.create.CreateCategoryCommand;
 import com.fullcycle.admin.catalog.domain.category.Category;
 import com.fullcycle.admin.catalog.domain.category.CategoryGateway;
 import com.fullcycle.admin.catalog.domain.category.CategoryID;
