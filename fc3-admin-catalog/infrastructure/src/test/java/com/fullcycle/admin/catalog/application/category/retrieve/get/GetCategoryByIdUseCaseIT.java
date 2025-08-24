@@ -5,6 +5,7 @@ import com.fullcycle.admin.catalog.domain.category.Category;
 import com.fullcycle.admin.catalog.domain.category.CategoryGateway;
 import com.fullcycle.admin.catalog.domain.category.CategoryID;
 import com.fullcycle.admin.catalog.domain.exceptions.DomainException;
+import com.fullcycle.admin.catalog.domain.exceptions.NotFoundException;
 import com.fullcycle.admin.catalog.infrastructure.category.persistence.CategoryJpaEntity;
 import com.fullcycle.admin.catalog.infrastructure.category.persistence.CategoryRepository;
 import org.junit.jupiter.api.Assertions;
@@ -62,7 +63,7 @@ public class GetCategoryByIdUseCaseIT {
         final var expectedId = CategoryID.from("123");
 
         final var actualException = Assertions.assertThrows(
-                DomainException.class,
+                NotFoundException.class,
                 () -> useCase.execute(expectedId.getValue())
         );
 
