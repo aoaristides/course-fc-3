@@ -6,6 +6,8 @@ import com.fullcycle.admin.catalog.application.category.create.CreateCategoryOut
 import com.fullcycle.admin.catalog.application.category.create.CreateCategoryUseCase;
 import com.fullcycle.admin.catalog.application.category.retrieve.get.CategoryOutput;
 import com.fullcycle.admin.catalog.application.category.retrieve.get.GetCategoryByIdUseCase;
+import com.fullcycle.admin.catalog.application.category.update.UpdateCategoryOutput;
+import com.fullcycle.admin.catalog.application.category.update.UpdateCategoryUseCase;
 import com.fullcycle.admin.catalog.domain.category.Category;
 import com.fullcycle.admin.catalog.domain.category.CategoryID;
 import com.fullcycle.admin.catalog.domain.exceptions.DomainException;
@@ -13,6 +15,7 @@ import com.fullcycle.admin.catalog.domain.exceptions.NotFoundException;
 import com.fullcycle.admin.catalog.domain.validation.Error;
 import com.fullcycle.admin.catalog.domain.validation.handler.Notification;
 import com.fullcycle.admin.catalog.infrastructure.category.models.CreateCategoryRequest;
+import com.fullcycle.admin.catalog.infrastructure.category.models.UpdateCategoryRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -27,8 +30,7 @@ import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.any;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -49,6 +51,9 @@ public class CategoryAPITest {
 
     @MockBean
     private GetCategoryByIdUseCase getCategoryByIdUseCase;
+
+    @MockBean
+    private UpdateCategoryUseCase updateCategoryUseCase;
 
     @Test
     public void givenAValidCommand_whenCallsCreateCategory_shouldReturnCategoryId() throws Exception {
@@ -162,7 +167,9 @@ public class CategoryAPITest {
         when(getCategoryByIdUseCase.execute(any()))
                 .thenReturn(CategoryOutput.from(aCategory));
 
-        final var request = get("/categories/{id}", expectedId);
+        final var request = get("/categories/{id}", expectedId)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
 
         final var response = this.mvc.perform(request).andDo(print());
 
@@ -194,5 +201,34 @@ public class CategoryAPITest {
 
         response.andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.message", equalTo(expectedErrorMessage)));
+    }
+
+    @Test
+    public void givenAValidCommand_whenCallsUpdateCategory_shouldReturnCategoryId() throws Exception {
+        final var expectedId = "123";
+        final var expectedName = "Filmes";
+        final var expectedDescription = "A categoria mais assistida";
+        final var expectedIsActive = true;
+
+        when(updateCategoryUseCase.execute(any()))
+                .thenReturn(Right(UpdateCategoryOutput.from(expectedId)));
+
+        final var aInput = new UpdateCategoryRequest(expectedName, expectedDescription, expectedIsActive);
+
+        final var request = put("/categories/{id}", expectedId)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(this.mapper.writeValueAsString(aInput));
+
+        final var response = this.mvc.perform(request).andDo(print());
+
+        response.andExpect(status().isNoContent())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_JSON_VALUE));
+
+        verify(updateCategoryUseCase, times(1)).execute(argThat(cmd ->
+                Objects.equals(expectedName, cmd.name())
+                        && Objects.equals(expectedDescription, cmd.description())
+                        && Objects.equals(expectedIsActive, cmd.isActive())
+        ));
     }
 }
